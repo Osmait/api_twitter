@@ -1,9 +1,14 @@
+from asyncio.log import logger
 from datetime import date
 from tweepy import OAuth1UserHandler, API
 import pandas as pd
 from decouple import config
 from models.tweet import tweet
 from config.db import conn
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 
 today = date.today()
@@ -15,6 +20,7 @@ TOKEN_SECRET = config("TOKEN_SECRET")
 
 
 def extract():
+    logger.info("Search tweet...")
     auth = OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, TOKEN_SECRET)
     api = API(auth)
     public_tweets = api.home_timeline()
@@ -28,6 +34,7 @@ def extract():
 
 
 def transform(data):
+    logger.info("Trasform...")
 
     columns_twitter = ["time", "user", "tweet"]
 
@@ -36,8 +43,21 @@ def transform(data):
 
 
 def load(data):
-    for i ,r in data.iterrows():
-        conn.execute(tweet.insert().values(r))
+    
+     for i ,r in data.iterrows():
+        
+        tw_database = conn.execute(tweet.select().where(tweet.c.tweet == r.tweet)).all()
+        if tw_database != []:
+            logger.info("this tweet exists in DataBase")
+        else:
+            conn.execute(tweet.insert().values(r))
+
+            logger.info(f"loading: {r.user}")   
+     logger.info(f"All Ready--{today}")
+    
+            
+
+         
 
 
 if __name__ == "__main__":
