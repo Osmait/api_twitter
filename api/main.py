@@ -1,5 +1,5 @@
 from asyncio.log import logger
-from datetime import date
+from datetime import datetime
 from tweepy import OAuth1UserHandler, API
 import pandas as pd
 from decouple import config
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 
-today = date.today()
+today = datetime.now()
 
 CONSUMER_KEY = config("CONSUMER_KEY")
 CONSUMER_SECRET = config("CONSUMER_SECRET")
