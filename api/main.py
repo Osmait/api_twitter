@@ -2,6 +2,9 @@ from datetime import date
 from tweepy import OAuth1UserHandler, API
 import pandas as pd
 from decouple import config
+from models.tweet import tweet
+from config.db import conn
+
 
 today = date.today()
 
@@ -11,10 +14,8 @@ ACCESS_TOKEN = config("ACCESS_TOKEN")
 TOKEN_SECRET = config("TOKEN_SECRET")
 
 
-def load():
-    auth = OAuth1UserHandler(
-        CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, TOKEN_SECRET
-    )
+def extract():
+    auth = OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, TOKEN_SECRET)
     api = API(auth)
     public_tweets = api.home_timeline()
 
@@ -34,6 +35,16 @@ def transform(data):
     return twitter_df
 
 
+def load(data):
+    for i ,r in data.iterrows():
+        conn.execute(tweet.insert().values(r))
+
+
 if __name__ == "__main__":
-    data = load()
-    print(transform(data))
+    data = extract()
+    df = transform(data)
+    load(df)
+
+
+
+    # df.to_csv(f"tweets-{today}.csv")
