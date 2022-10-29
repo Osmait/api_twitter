@@ -10,7 +10,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
-
 today = datetime.now()
 
 CONSUMER_KEY = config("CONSUMER_KEY")
@@ -20,9 +19,14 @@ TOKEN_SECRET = config("TOKEN_SECRET")
 
 
 def extract():
-    logger.info("Search tweet...")
-    auth = OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, TOKEN_SECRET)
-    api = API(auth)
+    try:
+        logger.info("Search tweet...")
+        auth = OAuth1UserHandler(
+            CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, TOKEN_SECRET)
+        api = API(auth)
+    except Exception as e:
+        logger.error(e)
+
     public_tweets = api.home_timeline()
 
     data = []
@@ -43,28 +47,30 @@ def transform(data):
 
 
 def load(data):
-    
-     for i ,r in data.iterrows():
-        
-        tw_database = conn.execute(tweet.select().where(tweet.c.tweet == r.tweet)).all()
+
+    for i, r in data.iterrows():
+
+        try:
+            tw_database = conn.execute(
+                tweet.select().where(tweet.c.tweet == r.tweet)).all()
+        except Exception as e:
+            logger.info(e)
+
         if tw_database != []:
             logger.info("this tweet exists in DataBase")
         else:
-            conn.execute(tweet.insert().values(r))
+            try:
+                conn.execute(tweet.insert().values(r))
+            except Exception as e:
+                logger.error(e)
 
-            logger.info(f"loading: {r.user}")   
-     logger.info(f"All Ready--{today}")
-    
-            
-
-         
+            logger.info(f"loading: {r.user}")
+    logger.info(f"All Ready--{today}")
 
 
 if __name__ == "__main__":
     data = extract()
     df = transform(data)
     load(df)
-
-
 
     # df.to_csv(f"tweets-{today}.csv")

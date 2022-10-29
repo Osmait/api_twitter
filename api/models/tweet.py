@@ -1,4 +1,4 @@
-from curses import meta
+
 from sqlalchemy import Table, Column
 from sqlalchemy.sql.sqltypes import Integer, Date, String, Text
 from config.db import meta,engine
