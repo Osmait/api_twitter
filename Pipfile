@@ -11,6 +11,8 @@ fastapi = "*"
 uvicorn = "*"
 sqlalchemy = "*"
 psycopg2-binary = "*"
+poetry = "*"
+apache-airflow = "*"
 
 [dev-packages]
 autopep8 = "*"

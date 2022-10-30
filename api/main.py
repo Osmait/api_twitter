@@ -68,9 +68,11 @@ def load(data):
     logger.info(f"All Ready--{today}")
 
 
-if __name__ == "__main__":
+def main():
     data = extract()
     df = transform(data)
     load(df)
 
-    # df.to_csv(f"tweets-{today}.csv")
+
+if __name__ == "__main__":
+    main()
