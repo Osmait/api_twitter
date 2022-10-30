@@ -21,7 +21,7 @@ def tweets(limit: int = 10):
         list: list tweet
     """
     try:
-        return conn.execute(tw.select()).fetchmany(limit)
+        return conn.execute(tw.select().order_by(tw.c.id.desc())).fetchmany(limit)
     except Exception as e:
         logger.error(e)
 
