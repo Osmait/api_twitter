@@ -1,6 +1,6 @@
 
 from asyncio.log import logger
-from select import select
+
 from fastapi import APIRouter
 from config.db import conn
 from models.tweet import tweet as tw
@@ -21,6 +21,7 @@ def tweets(limit: int = 10):
         list: list tweet
     """
     try:
+        
         return conn.execute(tw.select().order_by(tw.c.id.desc())).fetchmany(limit)
     except Exception as e:
         logger.error(e)
@@ -53,6 +54,6 @@ def search_user_tweet(user: str):
         _type_: _description_
     """
     try:
-        return conn.execute(tw.select().where(tw.c.user == user)).all()
+        return conn.execute(tw.select().where(tw.c.user.like(f"{user}%"))).all()
     except Exception as e:
         logger.error(e)
